@@ -1,4 +1,4 @@
-#from models.model import Users
+from models.model import Users
 from utils.database import db
 from models.model import Submissions
 from sqlalchemy import and_
@@ -19,6 +19,13 @@ class DataAccess:
             db.session.commit()
         except Exception as err:
             raise Exception(err)
+ 
+    def selectNextQuestion(self,user, question):
+        try:
+            return 2
+        except Exception as err:
+            raise Exception(err)
+            
 
     def getUnsolvedQuestionForAnUser(self, userId):
         try:
