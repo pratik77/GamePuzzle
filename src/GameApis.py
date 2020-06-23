@@ -1,12 +1,8 @@
 from flask import Flask
 from flask_restful import Api
 from api.Submit import Submit
-<<<<<<< HEAD
 from flask_cors import CORS, cross_origin
 from api.GetUserGamePlayData import GetUserGamePlayData
-=======
-from api.GenerateGameName import GenerateGameName
->>>>>>> de0195103071853b80529513f8f353ff7f4df211
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate   
 from utils.database import *
