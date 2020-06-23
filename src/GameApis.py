@@ -2,6 +2,9 @@ from flask import Flask
 from flask_restful import Api
 from api.Submit import Submit
 from api.GenerateGameName import GenerateGameName
+from api.GenerateHelloMsg import GenerateHelloMsg
+from api.InsertUserToDB import InsertUserToDB
+from api.SubmitAnswer import SubmitAnswer
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate   
 from utils.database import *
@@ -20,6 +23,9 @@ api = Api(app)
 CORS(app)
 api.add_resource(Submit, '/submit')
 api.add_resource(GenerateGameName, '/generateGameName')
+api.add_resource(GenerateHelloMsg, '/generateHelloMsg')
+api.add_resource(InsertUserToDB, '/insertUserToDB')
+api.add_resource(SubmitAnswer, '/submitAnswer')
 if __name__ == '__main__':
 
     confFile = None
@@ -33,6 +39,6 @@ if __name__ == '__main__':
     #     sys.exit(1)
     try:
         # cmdConfig = configparser.ConfigParser()
-        app.run(debug=True, host='0.0.0.0', port=5051, threaded=True)
+        app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)
     except Exception as err:
         print(err)
