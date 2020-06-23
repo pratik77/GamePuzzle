@@ -1,5 +1,5 @@
 from dao.DataAccess import DataAccess
-# from models.model import Users
+from models.model import Users
 from utils.Constants import CREATED_BY
 from utils.Constants import TOTAL_QUESTIONS
 from utils.database import db
@@ -16,10 +16,38 @@ import os, random
 class Services():
     dao = DataAccess()
 
-    def submit(self, data):
+    answers = {
+                1: "Answer1",
+                2: "Answer2",
+                3: "Answer3"
+    }
+    
+    def validateAnswer(self, question, answer):
+        try:
+            if self.answers[int(question)] == answer:
+                return True
+            else:
+                return False
+        except Exception as err:
+            raise Exception(err)   
+        
+    def submit(self, obj):
         try: 
-            #
-            return data
+            check = self.validateAnswer(obj["questionNum"], obj["answer"])
+            responseData = {}
+            if check:
+                correctAnswer = {}
+                correctAnswer["questionNum"] = self.dao.selectNextQuestion(obj["gamename"], obj["questionNum"])
+                responseData["hasError"] = "false"
+                responseData["message"] = SUCCESS
+                responseData["data"] = correctAnswer
+                return responseData
+            wrongAnswer = {}
+            wrongAnswer["questionNum"] = obj["questionNum"]
+            responseData["hasError"] = "true"
+            responseData["message"] = "Incorrect Answer. Plz try again."
+            responseData["data"] = wrongAnswer
+            return responseData
         except Exception as err:
             raise Exception(err)
 

@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_restful import Api
 from api.Submit import Submit
+from api.SubmitAnswer import SubmitAnswer
 from flask_cors import CORS, cross_origin
 from api.GetUserGamePlayData import GetUserGamePlayData
 from flask_sqlalchemy import SQLAlchemy
@@ -20,6 +21,7 @@ api = Api(app)
 
 CORS(app, support_credentials=True)
 api.add_resource(Submit, '/submit')
+api.add_resource(SubmitAnswer, '/submitAnswer')
 api.add_resource(GetUserGamePlayData, '/getUserGamePlayData')
 if __name__ == '__main__':
 
@@ -34,6 +36,6 @@ if __name__ == '__main__':
     #     sys.exit(1)
     try:
         # cmdConfig = configparser.ConfigParser()
-        app.run(debug=True, host='0.0.0.0', port=5051, threaded=True)
+        app.run(debug=True, host='0.0.0.0', port=5000, threaded=True)
     except Exception as err:
         print(err)
