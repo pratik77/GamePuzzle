@@ -4,10 +4,12 @@ import datetime
 class Users(db.Model):
     __tablename__ = 'users'
     #__table_args__ = {"schema": "puzzlegame"}
-    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    #id is gamename here which can be empid or phone number
+    id = db.Column(db.Integer, primary_key=True)
     firstName = db.Column(db.String(80), nullable=False)
     familyName = db.Column(db.String(80))
-    gameName = db.Column(db.String(80), unique=True)
+    pin = db.Column(db.Integer, nullable=False)
+
     submissions = db.relationship('Submissions', backref='users', lazy='dynamic')
 
 class Submissions(db.Model):

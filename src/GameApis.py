@@ -1,7 +1,12 @@
 from flask import Flask
 from flask_restful import Api
 from api.Submit import Submit
+<<<<<<< HEAD
+from flask_cors import CORS, cross_origin
+from api.GetUserGamePlayData import GetUserGamePlayData
+=======
 from api.GenerateGameName import GenerateGameName
+>>>>>>> de0195103071853b80529513f8f353ff7f4df211
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate   
 from utils.database import *
@@ -17,9 +22,9 @@ from models import model
 api = Api(app)
 # app.config['SECRET_KEY'] = b"\x9c\x9a\xd7qam\x95W\xeb\xbc\x88O'T\x12\\\x99\x11\n[\xfd\xaa\rL"
 
-CORS(app)
+CORS(app, support_credentials=True)
 api.add_resource(Submit, '/submit')
-api.add_resource(GenerateGameName, '/generateGameName')
+api.add_resource(GetUserGamePlayData, '/getUserGamePlayData')
 if __name__ == '__main__':
 
     confFile = None
