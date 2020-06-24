@@ -8,6 +8,7 @@ from utils.Constants import ALL_QUESTIONS_COMPLETED
 from models.model import QuestionSequence
 from models.model import Submissions
 from utils.Constants import SUCCESS
+from utils.Constants import TOTAL_QUESTIONS
 from models.model import Users
 import os, random
 
@@ -19,7 +20,14 @@ class Services():
     answers = {
                 1: "Answer1",
                 2: "Answer2",
-                3: "Answer3"
+                3: "Answer3",
+                4: "Answer4",
+                5: "Answer5",
+                6: "Answer6",
+                7: "Answer7",
+                8: "Answer8",
+                9: "Answer9",
+                10: "Answer10"
     }
     
     def validateAnswer(self, question, answer):
@@ -34,22 +42,34 @@ class Services():
     def submit(self, obj):
         try: 
             check = self.validateAnswer(obj["questionNum"], obj["answer"])
-            responseData = {}
             if check:
                 correctAnswer = {}
-                correctAnswer["nextQuestion"] = self.dao.selectNextQuestion(obj["gamename"], obj["questionNum"])
-                responseData["hasError"] = "false"
-                responseData["message"] = SUCCESS
-                responseData["data"] = correctAnswer
-                return responseData
+                correctAnswer["nextQuestion"] = self.selectNextQuestion(obj["gamename"], obj["questionNum"])
+                correctAnswer["giveUp"] = "false"
+                return self.generateResponseParams("200", "false", correctAnswer, SUCCESS)
             wrongAnswer = {}
             wrongAnswer["nextQuestion"] = obj["questionNum"]
-            responseData["hasError"] = "true"
-            responseData["message"] = "Incorrect Answer. Plz try again."
-            responseData["data"] = wrongAnswer
-            return responseData
+            return self.generateResponseParams("200", "true", wrongAnswer, "Incorrect Answer. Plz try again.")
         except Exception as err:
             raise Exception(err)
+
+    def selectNextQuestion(self, gamename, questionNum):
+        try:
+            questionSequence = self.dao.selectQuestionSequence(gamename).sequence.split(", ")
+            length = len(questionSequence) - 1
+            pos = questionSequence.index(questionNum)
+            if( pos < length ):
+                self.dao.updateSolvedAnswerToDB(gamename,questionNum)
+                nextQuestion = Submissions(userId=int(gamename),questionNum=int(questionSequence[pos+1]))
+                self.dao.insert(nextQuestion)
+                return questionSequence[pos+1]
+            else:
+                self.dao.updateSolvedAnswerToDB(gamename,questionNum)
+                nextQuestion = Submissions(userId=int(gamename),questionNum=TOTAL_QUESTIONS + 1)
+                self.dao.updateSolvedAnswerToDB(gamename,questionNum)
+                return str(TOTAL_QUESTIONS + 1)
+        except Exception as err:
+            raise Exception(err)   
 
     def userGameplayData(self, data):
         try:
@@ -117,5 +137,11 @@ class Services():
     def removeDbInstance(self):
         try:
             self.dao.removeDbInstance()
+        except Exception as err:
+            raise Exception(err)
+    
+    def removeDbInstanceAndCommit(self):
+        try:
+            self.dao.removeDbInstanceAndCommit()
         except Exception as err:
             raise Exception(err)
