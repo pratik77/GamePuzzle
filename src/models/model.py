@@ -20,6 +20,7 @@ class Submissions(db.Model):
     isSolved = db.Column(db.Boolean, nullable=False, default=False)
     appearingTime = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
     submissionTime = db.Column(db.DateTime, nullable=True)
+    submissionCount = db.Column(db.Integer, nullable=False, default=0)
 
 class QuestionSequence(db.Model):
     __tablename__ = 'question_sequence'
@@ -32,6 +33,14 @@ class Leaderboard(db.Model):
     #__table_args__ = {"schema": "puzzlegame"}
     userId = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
     marks = db.Column(db.Float, nullable=False)
+
+class SubmissionDetails(db.Model):
+    __tablename__ = 'submission_details'
+    submissionId = db.Column(db.Integer, primary_key=True, nullable=False, autoincrement=True)
+    userId = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    questionNum = db.Column(db.Integer)
+    submittedAnswer = db.Column(db.String(80))
+
 
 db.create_all()
 # db.drop_all()
