@@ -37,13 +37,13 @@ class Services():
             responseData = {}
             if check:
                 correctAnswer = {}
-                correctAnswer["questionNum"] = self.dao.selectNextQuestion(obj["gamename"], obj["questionNum"])
+                correctAnswer["nextQuestion"] = self.dao.selectNextQuestion(obj["gamename"], obj["questionNum"])
                 responseData["hasError"] = "false"
                 responseData["message"] = SUCCESS
                 responseData["data"] = correctAnswer
                 return responseData
             wrongAnswer = {}
-            wrongAnswer["questionNum"] = obj["questionNum"]
+            wrongAnswer["nextQuestion"] = obj["questionNum"]
             responseData["hasError"] = "true"
             responseData["message"] = "Incorrect Answer. Plz try again."
             responseData["data"] = wrongAnswer
