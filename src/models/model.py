@@ -3,8 +3,9 @@ import datetime
 
 class Users(db.Model):
     __tablename__ = 'users'
-    #__table_args__ = {"schema": "puzzlegame"}
-    #id is gamename here which can be empid or phone number
+    #__table_args__ = {"schema": "puzzlegame"
+    # This table stores User details
+    # Here id is gamename which can be empid or phone number
     id = db.Column(db.Integer, primary_key=True)
     firstName = db.Column(db.String(80), nullable=False)
     familyName = db.Column(db.String(80))
@@ -15,6 +16,8 @@ class Users(db.Model):
 class Submissions(db.Model):
     __tablename__ = 'submissions'
     #__table_args__ = {"schema": "puzzlegame"}
+    # Whenever a user sumits an answer, a new row gets created in this table with question 
+    # user id details and question number details and initially it is marked as not solved.
     userId = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
     questionNum = db.Column(db.Integer, nullable=False, primary_key=True)
     isSolved = db.Column(db.Boolean, nullable=False, default=False)
@@ -25,6 +28,7 @@ class Submissions(db.Model):
 class QuestionSequence(db.Model):
     __tablename__ = 'question_sequence'
     #__table_args__ = {"schema": "puzzlegame"}
+    # This table stores the question sequence in which the questions needs to be displayed for an user
     userId = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
     sequence = db.Column(db.String(80))
 

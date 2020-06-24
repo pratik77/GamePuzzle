@@ -11,6 +11,9 @@ class SubmitAnswer(Resource, Response):
     def post(self):
         try:
             userAnswer = self.service.submit(request.data)
+            self.service.removeDbInstanceAndCommit()
             return self.response("200", userAnswer["hasError"], userAnswer["data"], userAnswer["message"])
         except Exception as err:
+            self.service.removeDbInstance()
             return self.errorResponse(err)
+            

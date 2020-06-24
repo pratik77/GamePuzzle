@@ -1,15 +1,16 @@
 from models.model import Users
+from models.model import QuestionSequence
 from utils.database import db
 from models.model import Submissions
 from sqlalchemy import and_
 from models.model import Users
+import datetime
 
 
 class DataAccess:
     def insert(self, obj):
         try:
             db.session.add(obj)
-            self.commit()
             return obj
         except Exception as err:
             raise Exception(err)
@@ -18,14 +19,7 @@ class DataAccess:
         try:
             db.session.commit()
         except Exception as err:
-            raise Exception(err)
- 
-    def selectNextQuestion(self,user, question):
-        try:
-            return 2
-        except Exception as err:
-            raise Exception(err)
-            
+            raise Exception(err)        
 
     def getUnsolvedQuestionForAnUser(self, userId):
         try:
@@ -47,3 +41,26 @@ class DataAccess:
             db.session.remove()
         except Exception as err:
             raise Exception(err)
+    
+    def removeDbInstanceAndCommit(self):
+        try:
+            self.commit()
+            self.removeDbInstance()
+        except Exception as err:
+            raise Exception(err)
+
+    def updateSolvedAnswerToDB(self,gamename,questionNum):
+        try:
+            submission = Submissions.query.filter(and_(Submissions.userId == int(gamename),
+            Submissions.questionNum == int(questionNum)))
+            submission.isSolved = True
+            submission.submissionTime = datetime.datetime.utcnow
+        except Exception as err:
+            raise Exception(err)
+    
+    def selectQuestionSequence(self,gamename):
+        try:
+            return QuestionSequence.query.get(int(gamename))
+        except Exception as err:
+            raise Exception(err)
+
