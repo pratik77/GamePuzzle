@@ -9,8 +9,9 @@ class Users(db.Model):
     firstName = db.Column(db.String(80), nullable=False)
     familyName = db.Column(db.String(80))
     pin = db.Column(db.Integer, nullable=False)
-
+    isAdmin = db.Column(db.Boolean, nullable=False, default=False)
     submissions = db.relationship('Submissions', backref='users', lazy='dynamic')
+    marks = db.relationship('Leaderboard', backref='users', lazy='dynamic')
 
 # Decription: The table stores the solved and the next question for each user. Each time an 
 # user sends a correct answer, the question's isSolved value is changed to True and 
@@ -47,6 +48,12 @@ class SubmissionDetails(db.Model):
     userId = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     questionNum = db.Column(db.Integer)
     submittedAnswer = db.Column(db.String(80))
+
+class Competitions(db.Model):
+    __tablename__ = 'competitions'
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    startTime = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    isActive = db.Column(db.Boolean, nullable=False, default=True)
 
 
 db.create_all()

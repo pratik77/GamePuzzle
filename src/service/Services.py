@@ -96,14 +96,17 @@ class Services():
             if user is not None:
                 dbPin = user.pin
                 if dbPin != int(pin):
-                    return self.generateResponseParams("200", "true", {"nextQuestion" : "0", "gamename":gamename}, INVALID_PASSWORD_OR_USER_ALREADY_EXISTS)
+                    return self.generateResponseParams("200", "true", {"nextQuestion" : "0", "gamename":gamename, "isAdmin":"false"}, INVALID_PASSWORD_OR_USER_ALREADY_EXISTS)
+                elif user.isAdmin == True:
+                    return self.generateResponseParams("200", "true", {"nextQuestion" : "0", "gamename":gamename, "isAdmin":"true"}, "HELLO ADMIN")
+
                 else:
                     submission = self.dao.getUnsolvedQuestionForAnUser(user.id)
                     if submission is not None:
                         questionNum = submission.questionNum
-                        return self.generateResponseParams("200", "false", {"nextQuestion" : questionNum, "gamename":gamename}, SUCCESS)
+                        return self.generateResponseParams("200", "false", {"nextQuestion" : questionNum, "gamename":gamename, "isAdmin":"false"}, SUCCESS)
                     questionNum = TOTAL_QUESTIONS + 1    
-                    return self.generateResponseParams("200", "false", {"nextQuestion" : questionNum, "gamename":gamename}, ALL_QUESTIONS_COMPLETED)    
+                    return self.generateResponseParams("200", "false", {"nextQuestion" : questionNum, "gamename":gamename, "isAdmin":"false"}, ALL_QUESTIONS_COMPLETED)    
             else:
                 sequence = [1, 2, 3]
                 shuffledSequence = []
@@ -120,13 +123,17 @@ class Services():
                 #commit to table
                 user = Users(id = int(gamename), firstName = data["fname"], familyName = data["lname"], pin = pin)
                 self.dao.insert(user)
+                self.dao.commit()
+
                 questionSequence = QuestionSequence(userId = user.id, sequence = sequenceString)
                 self.dao.insert(questionSequence)
+                self.dao.commit()
 
                 submission = Submissions(userId = user.id, questionNum = 1)
                 self.dao.insert(submission)
+                self.dao.commit()
                     
-                return self.generateResponseParams("200", "false", {"nextQuestion" : "1", "gamename":gamename}, SUCCESS)
+                return self.generateResponseParams("200", "false", {"nextQuestion" : "1", "gamename":gamename, "isAdmin":"false"}, SUCCESS)
 
         except Exception as err:
             raise Exception(err)
