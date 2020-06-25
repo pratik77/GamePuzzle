@@ -2,6 +2,7 @@ from flask import Flask
 from flask_restful import Api
 from api.Submit import Submit
 from api.SubmitAnswer import SubmitAnswer
+from api.GiveUpQuestion import GiveUpQuestion
 from flask_cors import CORS, cross_origin
 from api.GetUserGamePlayData import GetUserGamePlayData
 from flask_sqlalchemy import SQLAlchemy
@@ -21,8 +22,9 @@ api = Api(app)
 
 CORS(app, support_credentials=True)
 api.add_resource(Submit, '/submit')
-api.add_resource(SubmitAnswer, '/submitAnswer')
 api.add_resource(GetUserGamePlayData, '/getUserGamePlayData')
+api.add_resource(GiveUpQuestion, '/giveUpQuestion')
+api.add_resource(SubmitAnswer, '/submitAnswer')
 if __name__ == '__main__':
 
     confFile = None

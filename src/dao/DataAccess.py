@@ -60,7 +60,7 @@ class DataAccess:
         except Exception as err:
             raise Exception(err)
 
-    def updateSolvedAnswerToDB(self,gamename,questionNum):
+    def updateSolvedQuestionToDB(self,gamename,questionNum):
         try:
             submission = Submissions.query.filter(and_(Submissions.userId == int(gamename),Submissions.questionNum == int(questionNum))).first()
             submission.isSolved = True
@@ -74,6 +74,7 @@ class DataAccess:
             return QuestionSequence.query.get(int(gamename))
         except Exception as err:
             raise Exception(err)
+    
     
     
 
