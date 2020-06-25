@@ -9,7 +9,7 @@ class GetUserGamePlayData(Resource, Response):
     def post(self):
         try: 
             responseData = self.service.userGameplayData(request.data)
-            self.service.removeDbInstanceAndCommit()
+            self.service.removeDbInstance()
             return responseData
         except Exception as err:
             self.service.removeDbInstance()
