@@ -10,6 +10,7 @@ from models.model import Submissions
 from utils.Constants import SUCCESS
 from utils.Constants import TOTAL_QUESTIONS
 from models.model import Users
+from models.model import Leaderboard
 import os, random
 
 
@@ -152,3 +153,21 @@ class Services():
             self.dao.removeDbInstanceAndCommit()
         except Exception as err:
             raise Exception(err)
+
+    def getLeaderboard(self, data):
+
+        try:
+            users = self.dao.getAllUsersByMarks()
+            leaderboard = []
+
+            for user in users:
+                userData = {}
+                userData["fname"] = user.firstName
+                userData["marks"] = user.marks[0]
+                leaderboard.append(userData)
+            
+            return self.generateResponseParams("200", "false", {"leaderboard" : leaderboard}, SUCCESS)
+        except Exception as err:
+            raise Exception(err)
+
+        

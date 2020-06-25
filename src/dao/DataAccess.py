@@ -4,6 +4,7 @@ from utils.database import db
 from models.model import Submissions
 from sqlalchemy import and_
 from models.model import Users
+from models.model import Leaderboard
 import datetime
 
 
@@ -61,6 +62,12 @@ class DataAccess:
     def selectQuestionSequence(self,gamename):
         try:
             return QuestionSequence.query.get(int(gamename))
+        except Exception as err:
+            raise Exception(err)
+
+    def getAllUsersByMarks(self):
+        try:
+            return db.session.query(Users, Leaderboard).filter(Users.id == Leaderboard.userId).order_by(Leaderboard.marks.desc())
         except Exception as err:
             raise Exception(err)
 
