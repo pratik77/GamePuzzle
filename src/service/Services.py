@@ -1,15 +1,15 @@
 from dao.DataAccess import DataAccess
 from models.model import Users
+from models.model import QuestionSequence
+from models.model import Submissions
+from models.model import SubmissionDetails
 from utils.Constants import CREATED_BY
 from utils.Constants import TOTAL_QUESTIONS
 from utils.database import db
 from utils.Constants import INVALID_PASSWORD_OR_USER_ALREADY_EXISTS
 from utils.Constants import ALL_QUESTIONS_COMPLETED
-from models.model import QuestionSequence
-from models.model import Submissions
 from utils.Constants import SUCCESS
-from utils.Constants import TOTAL_QUESTIONS
-from models.model import Users
+from utils.Constants import SKIP_COUNT
 import os, random
 
 
@@ -41,20 +41,25 @@ class Services():
         
     def submit(self, obj):
         try: 
+            count = self.insertUserAnswer(obj)
             check = self.validateAnswer(obj["questionNum"], obj["answer"])
+            AnswerResponse = {}
             if check:
-                correctAnswer = {}
-                correctAnswer["nextQuestion"] = self.selectNextQuestion(obj["gamename"], obj["questionNum"])
-                correctAnswer["giveUp"] = "false"
-                return self.generateResponseParams("200", "false", correctAnswer, SUCCESS)
-            wrongAnswer = {}
-            wrongAnswer["nextQuestion"] = obj["questionNum"]
-            return self.generateResponseParams("200", "true", wrongAnswer, "Incorrect Answer. Plz try again.")
+                AnswerResponse["nextQuestion"] = self.selectNextQuestion(obj)
+                AnswerResponse["giveUp"] = "false"
+                return self.generateResponseParams("200", "false", AnswerResponse, SUCCESS)
+            AnswerResponse["nextQuestion"] = obj["questionNum"]
+            AnswerResponse["giveUp"] = "false"
+            if count >= SKIP_COUNT:
+                AnswerResponse["giveUp"] = "true"
+            return self.generateResponseParams("200", "true", AnswerResponse, "Incorrect Answer. Plz try again.")
         except Exception as err:
             raise Exception(err)
 
-    def selectNextQuestion(self, gamename, questionNum):
+    def selectNextQuestion(self, obj):
         try:
+            gamename = obj["gamename"]
+            questionNum = obj["questionNum"]
             questionSequence = self.dao.selectQuestionSequence(gamename).sequence.split(", ")
             length = len(questionSequence) - 1
             pos = questionSequence.index(questionNum)
@@ -70,6 +75,17 @@ class Services():
                 return str(TOTAL_QUESTIONS + 1)
         except Exception as err:
             raise Exception(err)   
+
+    def insertUserAnswer(self,obj):
+        try:
+            gamename = int(obj["gamename"])
+            questionNum = int(obj["questionNum"])
+            answer = obj["answer"]
+            userAnswer = SubmissionDetails(userId=gamename,questionNum=questionNum,submittedAnswer=answer)
+            self.dao.insert(userAnswer)
+            return self.dao.updateSubmittionCountToDB(gamename,questionNum)
+        except Exception as err:
+            raise Exception(err)
 
     def userGameplayData(self, data):
         try:
