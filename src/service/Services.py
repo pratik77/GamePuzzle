@@ -64,14 +64,14 @@ class Services():
             length = len(questionSequence) - 1
             pos = questionSequence.index(questionNum)
             if( pos < length ):
-                self.dao.updateSolvedAnswerToDB(gamename,questionNum)
+                self.dao.updateSolvedQuestionToDB(gamename,questionNum)
                 nextQuestion = Submissions(userId=int(gamename),questionNum=int(questionSequence[pos+1]))
                 self.dao.insert(nextQuestion)
                 return questionSequence[pos+1]
             else:
-                self.dao.updateSolvedAnswerToDB(gamename,questionNum)
+                self.dao.updateSolvedQuestionToDB(gamename,questionNum)
                 nextQuestion = Submissions(userId=int(gamename),questionNum=TOTAL_QUESTIONS + 1)
-                self.dao.updateSolvedAnswerToDB(gamename,questionNum)
+                self.dao.updateSolvedQuestionToDB(gamename,questionNum)
                 return str(TOTAL_QUESTIONS + 1)
         except Exception as err:
             raise Exception(err)   
@@ -166,5 +166,14 @@ class Services():
     def removeDbInstanceAndCommit(self):
         try:
             self.dao.removeDbInstanceAndCommit()
+        except Exception as err:
+            raise Exception(err)
+    
+    def  giveUp(self, obj):
+        try:
+            AnswerResponse = {}
+            AnswerResponse["nextQuestion"] = self.selectNextQuestion(obj)
+            AnswerResponse["giveUp"] = "false"
+            return self.generateResponseParams("200", "false", AnswerResponse, SUCCESS)
         except Exception as err:
             raise Exception(err)
