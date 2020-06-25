@@ -11,6 +11,7 @@ class DataAccess:
     def insert(self, obj):
         try:
             db.session.add(obj)
+            db.session.commit()
             return obj
         except Exception as err:
             raise Exception(err)
@@ -48,13 +49,23 @@ class DataAccess:
             self.removeDbInstance()
         except Exception as err:
             raise Exception(err)
+    
+    def updateSubmittionCountToDB(self,gamename,questionNum):
+        try:
+            submission = Submissions.query.filter(and_(Submissions.userId == int(gamename),Submissions.questionNum == int(questionNum))).first()
+            count = submission.submissionCount
+            submission.submissionCount = int(count) + 1
+            self.insert(submission)
+            return count + 1
+        except Exception as err:
+            raise Exception(err)
 
     def updateSolvedAnswerToDB(self,gamename,questionNum):
         try:
-            submission = Submissions.query.filter(and_(Submissions.userId == int(gamename),
-            Submissions.questionNum == int(questionNum)))
+            submission = Submissions.query.filter(and_(Submissions.userId == int(gamename),Submissions.questionNum == int(questionNum))).first()
             submission.isSolved = True
-            submission.submissionTime = datetime.datetime.utcnow
+            submission.submissionTime = datetime.datetime.now()
+            self.insert(submission)
         except Exception as err:
             raise Exception(err)
     
@@ -63,4 +74,6 @@ class DataAccess:
             return QuestionSequence.query.get(int(gamename))
         except Exception as err:
             raise Exception(err)
+    
+    
 
