@@ -5,6 +5,7 @@ from models.model import Submissions
 from sqlalchemy import and_
 from models.model import Users
 from models.model import Leaderboard
+from models.model import SubmissionDetails
 import datetime
 
 
@@ -80,7 +81,31 @@ class DataAccess:
 
     def getAllUsersByMarks(self):
         try:
-            return db.session.query(Users, Leaderboard).filter(Users.id == Leaderboard.userId).order_by(Leaderboard.marks.desc())
+            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks.desc())
+        except Exception as err:
+            raise Exception(err)
+
+    def getLatestSubmissionsDetails(self):
+        try:
+            return db.session.query(Users, SubmissionDetails).filter(Users.id == SubmissionDetails.userId).order_by(SubmissionDetails.submissionTime.desc()).limit(30)
+        except Exception as err:
+            raise Exception(err)
+
+    def getMarksDetailsOfUser(self, gamename):
+        try:
+            return db.session.query(Leaderboard).filter(Leaderboard.userId == gamename).first()
+        except Exception as err:
+            raise Exception(err)
+    
+    def getExistsRowWithMarks2(self, marks):
+        try:
+            return db.session.query(Leaderboard.userId).filter_by(marks2 = marks).scalar()
+        except Exception as err:
+            raise Exception(err)
+
+    def getAllUsersByMarks2(self):
+        try:
+            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks2.desc(), Leaderboard.milestoneCount.desc())
         except Exception as err:
             raise Exception(err)
 

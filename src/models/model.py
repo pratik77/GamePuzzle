@@ -39,7 +39,9 @@ class Leaderboard(db.Model):
     __tablename__ = 'leaderboard'
     #__table_args__ = {"schema": "puzzlegame"}
     userId = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
-    marks = db.Column(db.Float, nullable=False)
+    marks = db.Column(db.Float, nullable=False, default=0.0)
+    marks2 = db.Column(db.Integer, nullable=False, default=0.0)
+    milestoneCount = db.Column(db.Integer, nullable=False, default=0)
 
 # Decription: The table will store all the correct and incorrect answers given by an user
 class SubmissionDetails(db.Model):
@@ -48,6 +50,7 @@ class SubmissionDetails(db.Model):
     userId = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     questionNum = db.Column(db.Integer)
     submittedAnswer = db.Column(db.String(80))
+    submissionTime = db.Column(db.DateTime, nullable=True, default=datetime.datetime.utcnow)
 
 class Competitions(db.Model):
     __tablename__ = 'competitions'
