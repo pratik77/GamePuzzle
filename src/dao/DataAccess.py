@@ -6,6 +6,8 @@ from sqlalchemy import and_
 from models.model import Users
 from models.model import Leaderboard
 from models.model import SubmissionDetails
+from models.model import Competitions
+from sqlalchemy import func
 import datetime
 
 
@@ -22,7 +24,15 @@ class DataAccess:
         try:
             db.session.commit()
         except Exception as err:
-            raise Exception(err)        
+            raise Exception(err)   
+
+    #delete all rows
+    def delete(self,obj):
+        try:
+            db.session.query(obj).delete()
+            db.session.commit()
+        except Exception as err:
+            raise Exception(err) 
 
     def getUnsolvedQuestionForAnUser(self, userId):
         try:
@@ -62,7 +72,7 @@ class DataAccess:
         except Exception as err:
             raise Exception(err)
 
-    def updateSolvedAnswerToDB(self,gamename,questionNum):
+    def updateSolvedQuestionToDB(self,gamename,questionNum):
         try:
             submission = Submissions.query.filter(and_(Submissions.userId == int(gamename),Submissions.questionNum == int(questionNum))).first()
             submission.isSolved = True
@@ -76,6 +86,44 @@ class DataAccess:
             return QuestionSequence.query.get(int(gamename))
         except Exception as err:
             raise Exception(err)
+
+    def getScore(self,gamename):
+        try:
+            leader = Leaderboard.query.get(int(gamename))
+            return leader.marks
+        except Exception as err:
+            raise Exception(err)
+    
+    def getTime(self,gamename,questionNum):
+        try:
+            submission = Submissions.query.filter(and_(Submissions.userId == int(gamename),Submissions.questionNum == int(questionNum))).first()
+            t2 = submission.submissionTime
+            if questionNum != 1:
+                t1 = submission.appearingTime
+                return (t2 - t1).total_seconds()
+            competition = Competitions.query.filter(Competitions.isActive == True).first()
+            t1 = competition.startTime
+            return (t2 - t1).total_seconds()            
+        except Exception as err:
+            raise Exception(err)
+    
+    def updateMarksToDB(self,gamename,marks):
+        try:
+            leader = Leaderboard.query.get(int(gamename))
+            leader.marks = marks
+            self.insert(leader)
+        except Exception as err:
+            raise Exception(err)
+    
+    def countSolvedAnswer(self):
+        try:
+            return db.session.query(Submissions.userId, func.count(Submissions.questionNum)).group_by(Submissions.userId).all()
+        except Exception as err:
+            raise Exception(err)
+
+        
+
+    
     
     
 

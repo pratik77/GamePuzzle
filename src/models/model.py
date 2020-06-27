@@ -22,7 +22,7 @@ class Submissions(db.Model):
     userId = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
     questionNum = db.Column(db.Integer, nullable=False, primary_key=True)
     isSolved = db.Column(db.Boolean, nullable=False, default=False)
-    appearingTime = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    appearingTime = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
     submissionTime = db.Column(db.DateTime, nullable=True)
     submissionCount = db.Column(db.Integer, nullable=False, default=0)
 
@@ -39,7 +39,7 @@ class Leaderboard(db.Model):
     __tablename__ = 'leaderboard'
     #__table_args__ = {"schema": "puzzlegame"}
     userId = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True, nullable=False)
-    marks = db.Column(db.Float, nullable=False, default=0.0)
+    marks = db.Column(db.Float, nullable=False, default = 5.0)
     marks2 = db.Column(db.Integer, nullable=False, default=0.0)
     milestoneCount = db.Column(db.Integer, nullable=False, default=0)
 
@@ -55,7 +55,7 @@ class SubmissionDetails(db.Model):
 class Competitions(db.Model):
     __tablename__ = 'competitions'
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    startTime = db.Column(db.DateTime, nullable=False, default=datetime.datetime.utcnow)
+    startTime = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now)
     isActive = db.Column(db.Boolean, nullable=False, default=True)
 
 

@@ -3,6 +3,8 @@ from models.model import Users
 from models.model import QuestionSequence
 from models.model import Submissions
 from models.model import SubmissionDetails
+from models.model import Leaderboard
+from models.model import Competitions
 from utils.Constants import CREATED_BY
 from utils.Constants import TOTAL_QUESTIONS
 from utils.database import db
@@ -14,6 +16,7 @@ from models.model import Users
 from models.model import Leaderboard
 from utils.Constants import SKIP_COUNT
 import os, random
+import datetime
 
 
 
@@ -51,6 +54,7 @@ class Services():
                 AnswerResponse["nextQuestion"] = self.selectNextQuestion(obj)
                 AnswerResponse["giveUp"] = "false"
                 self.updateLeaderboardMarks2(obj)
+                self.calculateAndUpdateMarks(obj, 10)
                 return self.generateResponseParams("200", "false", AnswerResponse, SUCCESS)
             AnswerResponse["nextQuestion"] = obj["questionNum"]
             AnswerResponse["giveUp"] = "false"
@@ -68,14 +72,14 @@ class Services():
             length = len(questionSequence) - 1
             pos = questionSequence.index(questionNum)
             if( pos < length ):
-                self.dao.updateSolvedAnswerToDB(gamename,questionNum)
-                nextQuestion = Submissions(userId=int(gamename),questionNum=int(questionSequence[pos+1]))
+                self.dao.updateSolvedQuestionToDB(gamename,questionNum)
+                nextQuestion = Submissions(userId = int(gamename),questionNum = int(questionSequence[pos+1]), appearingTime = datetime.datetime.now())
                 self.dao.insert(nextQuestion)
                 return questionSequence[pos+1]
             else:
-                self.dao.updateSolvedAnswerToDB(gamename,questionNum)
+                self.dao.updateSolvedQuestionToDB(gamename,questionNum)
                 nextQuestion = Submissions(userId=int(gamename),questionNum=TOTAL_QUESTIONS + 1)
-                self.dao.updateSolvedAnswerToDB(gamename,questionNum)
+                self.dao.updateSolvedQuestionToDB(gamename,questionNum)
                 return str(TOTAL_QUESTIONS + 1)
         except Exception as err:
             raise Exception(err)   
@@ -272,3 +276,36 @@ class Services():
     
 
         
+    
+    def giveUp(self, obj):
+        try:
+            AnswerResponse = {}
+            AnswerResponse["nextQuestion"] = self.selectNextQuestion(obj)
+            AnswerResponse["giveUp"] = "false"
+            self.calculateAndUpdateMarks(obj, 0)
+            return self.generateResponseParams("200", "false", AnswerResponse, SUCCESS)
+        except Exception as err:
+            raise Exception(err)
+    
+    def calculateAndUpdateMarks(self, obj, score):
+        try:
+            gamename = int(obj["gamename"])
+            questionNum = int(obj["questionNum"])
+            marks = self.dao.getScore(gamename) + score - (self.dao.getTime(gamename,questionNum) * 0.0166667)
+            self.dao.updateMarksToDB(gamename,marks)
+        except Exception as err:
+            raise Exception(err)
+
+    def startCompetition(self):
+        try:
+            self.dao.delete(Competitions)
+            self.dao.delete(Submissions)
+            self.dao.delete(SubmissionDetails)
+            self.dao.delete(Leaderboard)
+            self.dao.delete(QuestionSequence)
+            self.dao.delete(Users)
+            competition = Competitions(startTime=datetime.datetime.now(), isActive=True)
+            self.dao.insert(competition)
+            return self.generateResponseParams("200", "false", {"Status" : "GameStarted"}, SUCCESS)
+        except Exception as err:
+            raise Exception(err)
