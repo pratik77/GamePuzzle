@@ -1,4 +1,4 @@
-from service.Services import Services
+from src.service.Services import Services
 from utils.Response import Response
 from flask_restful import Resource
 from flask import request, json
