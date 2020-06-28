@@ -1,1 +1,1 @@
-web: gunicorn src/GameApis:app --bind="0.0.0.0:$PORT"
+web: gunicorn GameApis:app --bind="0.0.0.0:$PORT"
