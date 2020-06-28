@@ -15,6 +15,7 @@ from src.utils.Constants import TOTAL_QUESTIONS
 from src.models.model import Users
 from src.models.model import Leaderboard
 from src.utils.Constants import SKIP_COUNT
+from src.utils.Constants import ANSWERS
 import os, random
 import datetime
 
@@ -23,22 +24,11 @@ import datetime
 class Services():
     dao = DataAccess()
 
-    answers = {
-                1: "Answer1",
-                2: "Answer2",
-                3: "Answer3",
-                4: "Answer4",
-                5: "Answer5",
-                6: "Answer6",
-                7: "Answer7",
-                8: "Answer8",
-                9: "Answer9",
-                10: "Answer10"
-    }
+    answers = ANSWERS
     
     def validateAnswer(self, question, answer):
         try:
-            if self.answers[int(question)] == answer:
+            if self.answers[int(question)] == answer.casefold():
                 return True
             else:
                 return False
