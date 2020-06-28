@@ -1,1 +1,1 @@
-web gunicorn src/GameApis.py:app
+web gunicorn GameApis:app
