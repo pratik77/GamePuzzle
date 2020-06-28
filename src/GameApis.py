@@ -14,6 +14,8 @@ import getopt
 import logging
 import time
 from models import model
+from api.GetLeaderboard import GetLeaderboard
+from api.GetSubmissionDetailsAndLeaderboard import GetSubmissionDetailsAndLeaderboard
 
 # app = Flask(__name__)
 # api = Api(app)
@@ -24,6 +26,8 @@ api = Api(app)
 CORS(app, support_credentials=True)
 api.add_resource(Submit, '/submit')
 api.add_resource(GetUserGamePlayData, '/getUserGamePlayData')
+api.add_resource(GetLeaderboard, '/getLeaderboard')
+api.add_resource(GetSubmissionDetailsAndLeaderboard, '/getSubmissionDetailsAndLeaderboard')
 api.add_resource(GiveUpQuestion, '/giveUpQuestion')
 api.add_resource(SubmitAnswer, '/submitAnswer')
 api.add_resource(StartCompetition,'/startCompetition')
