@@ -59,6 +59,8 @@ class Competitions(db.Model):
     isActive = db.Column(db.Boolean, nullable=False, default=True)
 
 
+
+
 db.create_all()
 # db.drop_all()
 

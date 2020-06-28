@@ -129,7 +129,7 @@ class DataAccess:
 
     def getAllUsersByMarks(self):
         try:
-            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks.desc())
+            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks.desc(), Leaderboard.marks2.desc(), Leaderboard.milestoneCount.desc())
         except Exception as err:
             raise Exception(err)
 
@@ -147,13 +147,13 @@ class DataAccess:
     
     def getExistsRowWithMarks2(self, marks):
         try:
-            return db.session.query(Leaderboard.userId).filter_by(marks2 = marks).scalar()
+            return db.session.query(Leaderboard.userId).filter(Leaderboard.marks2 >= marks).limit(1).first()
         except Exception as err:
             raise Exception(err)
 
     def getAllUsersByMarks2(self):
         try:
-            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks2.desc(), Leaderboard.milestoneCount.desc())
+            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks2.desc(), Leaderboard.milestoneCount.desc(), Leaderboard.marks.desc())
         except Exception as err:
             raise Exception(err)
 

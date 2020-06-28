@@ -116,17 +116,15 @@ class Services():
                     questionNum = str(TOTAL_QUESTIONS + 1)    
                     return self.generateResponseParams("200", "false", {"nextQuestion" : questionNum, "gamename":gamename, "isAdmin":"false"}, ALL_QUESTIONS_COMPLETED)    
             else:
-                sequence = [1, 2, 3]
                 shuffledSequence = []
-                for i in range (4, TOTAL_QUESTIONS + 1):
+                for i in range (1, TOTAL_QUESTIONS + 1):
                     shuffledSequence.append(i)
-                shuffledSequence = self.shuffleArray(shuffledSequence)
+                shuffledSequence = self.shuffleArray(shuffledSequence, 3, 8)
 
                 #create sequence string here
-                sequence += shuffledSequence
-                sequenceString = str(sequence[0])
+                sequenceString = str(shuffledSequence[0])
                 for i in range(1, TOTAL_QUESTIONS):
-                    sequenceString += ", " + str(sequence[i])
+                    sequenceString += ", " + str(shuffledSequence[i])
                 
                 #commit to table
                 user = Users(id = int(gamename), firstName = data["fname"], familyName = data["lname"], pin = pin)
@@ -157,11 +155,11 @@ class Services():
         responseParams['data'] = data
         return responseParams
 
-    def shuffleArray(self, arr):
-        for i in range(len(arr)-1, 0, -1): 
+    def shuffleArray(self, arr, start, end):
+        for i in range(start - 1, end - 1, 1): 
       
             # Pick a random index from 0 to i  
-            j = random.randint(0, i + 1)  
+            j = random.randint(i + 1, end - 1)  
     
             # Swap arr[i] with the element at random index  
             arr[i], arr[j] = arr[j], arr[i]
@@ -264,7 +262,7 @@ class Services():
             marks2 = leaderboard.marks2
 
             existsRowsWithMarks2 = self.dao.getExistsRowWithMarks2(marks2 + 10)
-            
+            print(existsRowsWithMarks2)
             if existsRowsWithMarks2 is None:
                 leaderboard.milestoneCount = leaderboard.milestoneCount + 1
             leaderboard.marks2 = marks2 + 10
