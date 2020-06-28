@@ -1,1 +1,1 @@
-web gunicorn GameApis:app
+web gunicorn app:app
