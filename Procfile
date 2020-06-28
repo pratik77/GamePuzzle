@@ -1,0 +1,1 @@
+web gunicorn src/GameApis.py:app
