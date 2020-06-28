@@ -1,6 +1,6 @@
 from flask import Flask
 from flask_restful import Api
-from api.Submit import Submit
+from src.api.Submit import Submit
 from api.SubmitAnswer import SubmitAnswer
 from api.GiveUpQuestion import GiveUpQuestion
 from flask_cors import CORS, cross_origin
