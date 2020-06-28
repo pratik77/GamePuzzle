@@ -1,21 +1,21 @@
 from flask import Flask
 from flask_restful import Api
-from api.Submit import Submit
-from api.SubmitAnswer import SubmitAnswer
-from api.GiveUpQuestion import GiveUpQuestion
+from src.api.Submit import Submit
+from src.api.SubmitAnswer import SubmitAnswer
+from src.api.GiveUpQuestion import GiveUpQuestion
 from flask_cors import CORS, cross_origin
-from api.GetUserGamePlayData import GetUserGamePlayData
-from api.StartCompetition import StartCompetition
+from src.api.GetUserGamePlayData import GetUserGamePlayData
+from src.api.StartCompetition import StartCompetition
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate   
-from utils.database import *
+from src.utils.database import *
 import configparser
 import getopt
 import logging
 import time
-from models import model
-from api.GetLeaderboard import GetLeaderboard
-from api.GetSubmissionDetailsAndLeaderboard import GetSubmissionDetailsAndLeaderboard
+from src.models import model
+from src.api.GetLeaderboard import GetLeaderboard
+from src.api.GetSubmissionDetailsAndLeaderboard import GetSubmissionDetailsAndLeaderboard
 
 # app = Flask(__name__)
 # api = Api(app)
