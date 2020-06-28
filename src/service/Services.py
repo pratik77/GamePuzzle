@@ -1,20 +1,20 @@
-from dao.DataAccess import DataAccess
-from models.model import Users
-from models.model import QuestionSequence
-from models.model import Submissions
-from models.model import SubmissionDetails
-from models.model import Leaderboard
-from models.model import Competitions
-from utils.Constants import CREATED_BY
-from utils.Constants import TOTAL_QUESTIONS
-from utils.database import db
-from utils.Constants import INVALID_PASSWORD_OR_USER_ALREADY_EXISTS
-from utils.Constants import ALL_QUESTIONS_COMPLETED
-from utils.Constants import SUCCESS
-from utils.Constants import TOTAL_QUESTIONS
-from models.model import Users
-from models.model import Leaderboard
-from utils.Constants import SKIP_COUNT
+from src.dao.DataAccess import DataAccess
+from src.models.model import Users
+from src.models.model import QuestionSequence
+from src.models.model import Submissions
+from src.models.model import SubmissionDetails
+from src.models.model import Leaderboard
+from src.models.model import Competitions
+from src.utils.Constants import CREATED_BY
+from src.utils.Constants import TOTAL_QUESTIONS
+from src.utils.database import db
+from src.utils.Constants import INVALID_PASSWORD_OR_USER_ALREADY_EXISTS
+from src.utils.Constants import ALL_QUESTIONS_COMPLETED
+from src.utils.Constants import SUCCESS
+from src.utils.Constants import TOTAL_QUESTIONS
+from src.models.model import Users
+from src.models.model import Leaderboard
+from src.utils.Constants import SKIP_COUNT
 import os, random
 import datetime
 

@@ -1,12 +1,12 @@
-from models.model import Users
-from models.model import QuestionSequence
-from utils.database import db
-from models.model import Submissions
+from src.models.model import Users
+from src.models.model import QuestionSequence
+from src.utils.database import db
+from src.models.model import Submissions
 from sqlalchemy import and_
-from models.model import Users
-from models.model import Leaderboard
-from models.model import SubmissionDetails
-from models.model import Competitions
+from src.models.model import Users
+from src.models.model import Leaderboard
+from src.models.model import SubmissionDetails
+from src.models.model import Competitions
 from sqlalchemy import func
 import datetime
 
