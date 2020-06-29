@@ -1,4 +1,4 @@
-from utils.database import db
+from src.utils.database import db
 import datetime
 
 # Decription: The table stores User details. Here id is gamename which can be empid or phone number
