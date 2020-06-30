@@ -1,8 +1,8 @@
-from service.Services import Services
-from utils.Response import Response
+from src.service.Services import Services
+from src.utils.Response import Response
 from flask_restful import Resource
 from flask import request, json
-from utils.Constants import SUCCESS
+from src.utils.Constants import SUCCESS
 
 class Submit(Resource, Response):
     service = Services()

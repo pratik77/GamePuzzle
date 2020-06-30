@@ -1,18 +1,21 @@
-from dao.DataAccess import DataAccess
-from models.model import Users
-from models.model import QuestionSequence
-from models.model import Submissions
-from models.model import SubmissionDetails
-from models.model import Leaderboard
-from models.model import Competitions
-from utils.Constants import CREATED_BY
-from utils.Constants import TOTAL_QUESTIONS
-from utils.database import db
-from utils.Constants import INVALID_PASSWORD_OR_USER_ALREADY_EXISTS
-from utils.Constants import ALL_QUESTIONS_COMPLETED
-from utils.Constants import SUCCESS
-from utils.Constants import SKIP_COUNT
-from utils.Constants import ANSWERS
+from src.dao.DataAccess import DataAccess
+from src.models.model import Users
+from src.models.model import QuestionSequence
+from src.models.model import Submissions
+from src.models.model import SubmissionDetails
+from src.models.model import Leaderboard
+from src.models.model import Competitions
+from src.utils.Constants import CREATED_BY
+from src.utils.Constants import TOTAL_QUESTIONS
+from src.utils.database import db
+from src.utils.Constants import INVALID_PASSWORD_OR_USER_ALREADY_EXISTS
+from src.utils.Constants import ALL_QUESTIONS_COMPLETED
+from src.utils.Constants import SUCCESS
+from src.utils.Constants import TOTAL_QUESTIONS
+from src.models.model import Users
+from src.models.model import Leaderboard
+from src.utils.Constants import SKIP_COUNT
+from src.utils.Constants import ANSWERS
 import os, random
 import datetime
 
@@ -40,6 +43,7 @@ class Services():
             if check:
                 AnswerResponse["nextQuestion"] = self.selectNextQuestion(obj)
                 AnswerResponse["giveUp"] = "false"
+                self.updateLeaderboardMarks2(obj)
                 self.calculateAndUpdateMarks(obj, 10)
                 return self.generateResponseParams("200", "false", AnswerResponse, SUCCESS)
             AnswerResponse["nextQuestion"] = obj["questionNum"]
@@ -97,37 +101,36 @@ class Services():
                 else:
                     submission = self.dao.getUnsolvedQuestionForAnUser(user.id)
                     if submission is not None:
-                        questionNum = submission.questionNum
+                        questionNum = str(submission.questionNum)
                         return self.generateResponseParams("200", "false", {"nextQuestion" : questionNum, "gamename":gamename, "isAdmin":"false"}, SUCCESS)
-                    questionNum = TOTAL_QUESTIONS + 1    
+                    questionNum = str(TOTAL_QUESTIONS + 1)    
                     return self.generateResponseParams("200", "false", {"nextQuestion" : questionNum, "gamename":gamename, "isAdmin":"false"}, ALL_QUESTIONS_COMPLETED)    
             else:
-                sequence = [1, 2, 3]
                 shuffledSequence = []
-                for i in range (4, TOTAL_QUESTIONS + 1):
+                for i in range (1, TOTAL_QUESTIONS + 1):
                     shuffledSequence.append(i)
-                shuffledSequence = self.shuffleArray(shuffledSequence)
+                shuffledSequence = self.shuffleArray(shuffledSequence, 3, 8)
 
                 #create sequence string here
-                sequence += shuffledSequence
-                sequenceString = str(sequence[0])
+                sequenceString = str(shuffledSequence[0])
                 for i in range(1, TOTAL_QUESTIONS):
-                    sequenceString += ", " + str(sequence[i])
+                    sequenceString += ", " + str(shuffledSequence[i])
                 
                 #commit to table
                 user = Users(id = int(gamename), firstName = data["fname"], familyName = data["lname"], pin = pin)
                 self.dao.insert(user)
-                leaderboard = Leaderboard(userId = int(gamename))
-                self.dao.insert(leaderboard)
-                self.dao.commit()
+                # self.dao.commit()
+
                 questionSequence = QuestionSequence(userId = user.id, sequence = sequenceString)
                 self.dao.insert(questionSequence)
-                self.dao.commit()
+                # self.dao.commit()
 
                 submission = Submissions(userId = user.id, questionNum = 1)
                 self.dao.insert(submission)
-                self.dao.commit()
-                    
+                # self.dao.commit()
+                
+                leaderboard = Leaderboard(userId = user.id)
+                self.dao.insert(leaderboard)
                 return self.generateResponseParams("200", "false", {"nextQuestion" : "1", "gamename":gamename, "isAdmin":"false"}, SUCCESS)
 
         except Exception as err:
@@ -142,11 +145,11 @@ class Services():
         responseParams['data'] = data
         return responseParams
 
-    def shuffleArray(self, arr):
-        for i in range(len(arr)-1, 0, -1): 
+    def shuffleArray(self, arr, start, end):
+        for i in range(start - 1, end - 1, 1): 
       
             # Pick a random index from 0 to i  
-            j = random.randint(0, i + 1)  
+            j = random.randint(i + 1, end - 1)  
     
             # Swap arr[i] with the element at random index  
             arr[i], arr[j] = arr[j], arr[i]
@@ -163,6 +166,104 @@ class Services():
             self.dao.removeDbInstanceAndCommit()
         except Exception as err:
             raise Exception(err)
+
+    def getLeaderboard(self, data):
+
+        try:
+            users = self.dao.getAllUsersByMarks()
+            leaderboard = []
+
+            for user in users:
+                userData = {}
+                userData["fname"] = user.Users.firstName
+                userData["marks"] = user.Leaderboard.marks[0]
+                leaderboard.append(userData)
+            
+            return self.generateResponseParams("200", "false", {"leaderboard" : leaderboard}, SUCCESS)
+        except Exception as err:
+            raise Exception(err)
+
+    def getSubmissionDetails(self, data):
+
+        try:
+            details = self.dao.getLatestSubmissionsDetails()
+            submittedAnswers = []
+
+            for detail in details:
+                userData = {}
+                userData["fname"] = detail.Users.firstName
+                userData["questionNum"] = detail.SubmissionDetails.questionNum
+                userData["submittedAnswer"] = detail.SubmissionDetails.submittedAnswer
+                submittedAnswers.append(userData)
+            
+            return self.generateResponseParams("200", "false", {"submissionDetails" : submittedAnswers}, SUCCESS)
+        except Exception as err:
+            raise Exception(err)
+
+    def getSubmissionDetailsAndLeaderboard(self, data):
+
+        try:
+            details = self.dao.getLatestSubmissionsDetails()
+            submittedAnswers = []
+
+            users = self.dao.getAllUsersByMarks()
+            leaderboard = []
+
+            users2 = self.dao.getAllUsersByMarks2()
+            leaderboard2 = []
+
+            for detail in details:
+                userData = {}
+                userData["fname"] = detail.Users.firstName
+                userData["questionNum"] = detail.SubmissionDetails.questionNum
+                userData["submittedAnswer"] = detail.SubmissionDetails.submittedAnswer
+                userData["actualAnswer"] = self.answers[detail.SubmissionDetails.questionNum]
+                submittedAnswers.append(userData)
+
+            i = 1
+            for user in users:
+                userData = {}
+                userData["gamename"] = user.Users.id
+                userData["fname"] = user.Users.firstName
+                userData["marks"] = user.Leaderboard.marks
+                userData["rank"] = i
+                i = i + 1
+                leaderboard.append(userData)
+
+            i = 1
+            for user in users2:
+                userData = {}
+                userData["gamename"] = user.Users.id
+                userData["fname"] = user.Users.firstName
+                userData["marks"] = user.Leaderboard.marks2
+                userData["rank"] = i
+                i = i + 1
+                leaderboard2.append(userData)
+            
+            return self.generateResponseParams("200", "false", {"submissionDetails" : submittedAnswers, "leaderboard":leaderboard, "leaderboard2":leaderboard2}, SUCCESS)
+        except Exception as err:
+            raise Exception(err)
+
+    def updateLeaderboardMarks2(self, data):
+
+        try:
+            gamename = int(data["gamename"])
+            leaderboard = self.dao.getMarksDetailsOfUser(gamename)
+            marks2 = leaderboard.marks2
+
+            existsRowsWithMarks2 = self.dao.getExistsRowWithMarks2(marks2 + 10)
+            print(existsRowsWithMarks2)
+            if existsRowsWithMarks2 is None:
+                leaderboard.milestoneCount = leaderboard.milestoneCount + 1
+            leaderboard.marks2 = marks2 + 10
+            self.dao.insert(leaderboard)
+            
+        except Exception as err:
+            raise Exception(err)
+    
+    
+
+        
     
     def giveUp(self, obj):
         try:

@@ -4,11 +4,11 @@ from flask_restful import Resource
 from flask import request, json
 from src.utils.Constants import SUCCESS
 from src.utils.database import db
-class GetUserGamePlayData(Resource, Response):
+class GetSubmissionDetailsAndLeaderboard(Resource, Response):
     service = Services()
-    def post(self):
+    def get(self):
         try: 
-            responseData = self.service.userGameplayData(request.data)
+            responseData = self.service.getSubmissionDetailsAndLeaderboard(request.data)    
             self.service.removeDbInstance()
             return responseData
         except Exception as err:

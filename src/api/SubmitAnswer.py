@@ -1,10 +1,10 @@
-from service.Services import Services
-from utils.Response import Response
+from src.service.Services import Services
+from src.utils.Response import Response
 from flask_restful import Resource
 from flask_restful import Api
 from flask import request, json
-from utils.Constants import SUCCESS
-from utils.database import db
+from src.utils.Constants import SUCCESS
+from src.utils.database import db
 
 class SubmitAnswer(Resource, Response):
     service = Services()

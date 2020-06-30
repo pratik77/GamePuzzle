@@ -1,11 +1,12 @@
-from models.model import Users
-from models.model import QuestionSequence
-from utils.database import db
-from models.model import Submissions
+from src.models.model import Users
+from src.models.model import QuestionSequence
+from src.utils.database import db
+from src.models.model import Submissions
 from sqlalchemy import and_
-from models.model import Users
-from models.model import Leaderboard
-from models.model import Competitions
+from src.models.model import Users
+from src.models.model import Leaderboard
+from src.models.model import SubmissionDetails
+from src.models.model import Competitions
 from sqlalchemy import func
 import datetime
 
@@ -125,4 +126,34 @@ class DataAccess:
     
     
     
+
+    def getAllUsersByMarks(self):
+        try:
+            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks.desc(), Leaderboard.marks2.desc(), Leaderboard.milestoneCount.desc())
+        except Exception as err:
+            raise Exception(err)
+
+    def getLatestSubmissionsDetails(self):
+        try:
+            return db.session.query(Users, SubmissionDetails).filter(Users.id == SubmissionDetails.userId).order_by(SubmissionDetails.submissionTime.desc()).limit(30)
+        except Exception as err:
+            raise Exception(err)
+
+    def getMarksDetailsOfUser(self, gamename):
+        try:
+            return db.session.query(Leaderboard).filter(Leaderboard.userId == gamename).first()
+        except Exception as err:
+            raise Exception(err)
+    
+    def getExistsRowWithMarks2(self, marks):
+        try:
+            return db.session.query(Leaderboard.userId).filter(Leaderboard.marks2 >= marks).limit(1).first()
+        except Exception as err:
+            raise Exception(err)
+
+    def getAllUsersByMarks2(self):
+        try:
+            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks2.desc(), Leaderboard.milestoneCount.desc(), Leaderboard.marks.desc())
+        except Exception as err:
+            raise Exception(err)
 
