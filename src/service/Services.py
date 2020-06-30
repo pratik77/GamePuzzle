@@ -39,12 +39,12 @@ class Services():
         
     def submit(self, obj):
         try:
-            if(self.hasQuestionBeenSolved(obj)):
-                data = {}
-                data["nextQuestion"] = self.getNextQuestion(obj)
-                # data["giveUp"] = "false"
-                # data["answer"] = self.answers[int(data["nextQuestion"])]
-                return self.generateResponseParams("200", "false", data, CORRECT_ANSWER)
+            # if(self.hasQuestionBeenSolved(obj)):
+            #     data = {}
+            #     data["nextQuestion"] = self.getNextQuestion(obj)
+            #     # data["giveUp"] = "false"
+            #     # data["answer"] = self.answers[int(data["nextQuestion"])]
+            #     return self.generateResponseParams("200", "false", data, CORRECT_ANSWER)
 
             count = self.insertUserAnswer(obj)
             check = self.validateAnswer(obj["questionNum"], obj["answer"])
