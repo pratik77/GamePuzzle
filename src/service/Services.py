@@ -12,6 +12,7 @@ from utils.Constants import INVALID_PASSWORD_OR_USER_ALREADY_EXISTS
 from utils.Constants import ALL_QUESTIONS_COMPLETED
 from utils.Constants import SUCCESS
 from utils.Constants import SKIP_COUNT
+from utils.Constants import ANSWERS
 import os, random
 import datetime
 
@@ -20,22 +21,11 @@ import datetime
 class Services():
     dao = DataAccess()
 
-    answers = {
-                1: "Answer1",
-                2: "Answer2",
-                3: "Answer3",
-                4: "Answer4",
-                5: "Answer5",
-                6: "Answer6",
-                7: "Answer7",
-                8: "Answer8",
-                9: "Answer9",
-                10: "Answer10"
-    }
+    answers = ANSWERS
     
     def validateAnswer(self, question, answer):
         try:
-            if self.answers[int(question)] == answer:
+            if self.answers[int(question)] == answer.casefold():
                 return True
             else:
                 return False
