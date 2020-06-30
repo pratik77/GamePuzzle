@@ -16,6 +16,8 @@ from src.models.model import Users
 from src.models.model import Leaderboard
 from src.utils.Constants import SKIP_COUNT
 from src.utils.Constants import ANSWERS
+from src.utils.Constants import CORRECT_ANSWER
+from src.utils.Constants import INVALID_ANSWER
 import os, random
 import datetime
 
@@ -36,23 +38,38 @@ class Services():
             raise Exception(err)   
         
     def submit(self, obj):
-        try: 
+        try:
+            if(self.hasQuestionBeenSolved(obj)):
+                data = {}
+                data["nextQuestion"] = self.getNextQuestion(obj)
+                data["giveUp"] = "false"
+                data["answer"] = self.answers[int(data["nextQuestion"])]
+                return self.generateResponseParams("200", "false", data, CORRECT_ANSWER)
+
             count = self.insertUserAnswer(obj)
             check = self.validateAnswer(obj["questionNum"], obj["answer"])
             AnswerResponse = {}
             if check:
                 AnswerResponse["nextQuestion"] = self.selectNextQuestion(obj)
                 AnswerResponse["giveUp"] = "false"
+                AnswerResponse["answer"] = self.answers[int(AnswerResponse["nextQuestion"])]
                 self.updateLeaderboardMarks2(obj)
                 self.calculateAndUpdateMarks(obj, 10)
-                return self.generateResponseParams("200", "false", AnswerResponse, SUCCESS)
+                return self.generateResponseParams("200", "false", AnswerResponse, CORRECT_ANSWER)
             AnswerResponse["nextQuestion"] = obj["questionNum"]
             AnswerResponse["giveUp"] = "false"
+            AnswerResponse["answer"] = self.answers[int(AnswerResponse["nextQuestion"])]
             if count >= SKIP_COUNT:
                 AnswerResponse["giveUp"] = "true"
-            return self.generateResponseParams("200", "true", AnswerResponse, "Incorrect Answer. Plz try again.")
+            return self.generateResponseParams("200", "true", AnswerResponse, INVALID_ANSWER)
         except Exception as err:
             raise Exception(err)
+
+    def hasQuestionBeenSolved(self, obj):
+        gamename = obj["gamename"]
+        questionNum = obj["questionNum"]
+        currQuestion = self.dao.getSubmissionByUserIdAndQuestionNum(gamename, questionNum)
+        return currQuestion.isSolved
 
     def selectNextQuestion(self, obj):
         try:
@@ -61,7 +78,7 @@ class Services():
             questionSequence = self.dao.selectQuestionSequence(gamename).sequence.split(", ")
             length = len(questionSequence) - 1
             pos = questionSequence.index(questionNum)
-            if( pos < length ):
+            if(pos < length):
                 self.dao.updateSolvedQuestionToDB(gamename,questionNum)
                 nextQuestion = Submissions(userId = int(gamename),questionNum = int(questionSequence[pos+1]), appearingTime = datetime.datetime.now())
                 self.dao.insert(nextQuestion)
@@ -73,6 +90,19 @@ class Services():
                 return str(TOTAL_QUESTIONS + 1)
         except Exception as err:
             raise Exception(err)   
+
+    def getNextQuestion(self, obj):
+        try:
+            gamename = obj["gamename"]
+            questionNum = obj["questionNum"]
+            questionSequence = self.dao.selectQuestionSequence(gamename).sequence.split(", ")
+            length = len(questionSequence) - 1
+            pos = questionSequence.index(questionNum)
+            if(pos < length):
+                return questionSequence[pos+1]
+            return str(TOTAL_QUESTIONS + 1)
+        except Exception as err:
+            raise Exception(err)  
 
     def insertUserAnswer(self,obj):
         try:
@@ -94,17 +124,18 @@ class Services():
             if user is not None:
                 dbPin = user.pin
                 if dbPin != int(pin):
-                    return self.generateResponseParams("200", "true", {"nextQuestion" : "0", "gamename":gamename, "isAdmin":"false"}, INVALID_PASSWORD_OR_USER_ALREADY_EXISTS)
+                    return self.generateResponseParams("200", "true", {"nextQuestion" : "0", "gamename":gamename, "isAdmin":"false", "answer":"none"}, INVALID_PASSWORD_OR_USER_ALREADY_EXISTS)
                 elif user.isAdmin == True:
-                    return self.generateResponseParams("200", "true", {"nextQuestion" : "0", "gamename":gamename, "isAdmin":"true"}, "HELLO ADMIN")
+                    return self.generateResponseParams("200", "true", {"nextQuestion" : "0", "gamename":gamename, "isAdmin":"true", "answer":"none"}, "HELLO ADMIN")
 
                 else:
                     submission = self.dao.getUnsolvedQuestionForAnUser(user.id)
                     if submission is not None:
                         questionNum = str(submission.questionNum)
-                        return self.generateResponseParams("200", "false", {"nextQuestion" : questionNum, "gamename":gamename, "isAdmin":"false"}, SUCCESS)
+                        answer = self.answers[int(questionNum)]
+                        return self.generateResponseParams("200", "false", {"nextQuestion" : questionNum, "gamename":gamename, "isAdmin":"false", "answer":answer}, SUCCESS)
                     questionNum = str(TOTAL_QUESTIONS + 1)    
-                    return self.generateResponseParams("200", "false", {"nextQuestion" : questionNum, "gamename":gamename, "isAdmin":"false"}, ALL_QUESTIONS_COMPLETED)    
+                    return self.generateResponseParams("200", "false", {"nextQuestion" : questionNum, "gamename":gamename, "isAdmin":"false", "answer":"none"}, ALL_QUESTIONS_COMPLETED)    
             else:
                 shuffledSequence = []
                 for i in range (1, TOTAL_QUESTIONS + 1):
@@ -131,7 +162,8 @@ class Services():
                 
                 leaderboard = Leaderboard(userId = user.id)
                 self.dao.insert(leaderboard)
-                return self.generateResponseParams("200", "false", {"nextQuestion" : "1", "gamename":gamename, "isAdmin":"false"}, SUCCESS)
+                answer = self.answers[1]
+                return self.generateResponseParams("200", "false", {"nextQuestion" : "1", "gamename":gamename, "isAdmin":"false", "answer":answer}, SUCCESS)
 
         except Exception as err:
             raise Exception(err)

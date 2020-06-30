@@ -74,13 +74,16 @@ class DataAccess:
 
     def updateSolvedQuestionToDB(self,gamename,questionNum):
         try:
-            submission = Submissions.query.filter(and_(Submissions.userId == int(gamename),Submissions.questionNum == int(questionNum))).first()
+            submission = self.getSubmissionByUserIdAndQuestionNum(gamename, questionNum)
             submission.isSolved = True
             submission.submissionTime = datetime.datetime.now()
             self.insert(submission)
         except Exception as err:
             raise Exception(err)
     
+    def getSubmissionByUserIdAndQuestionNum(self, gamename, questionNum):
+        return Submissions.query.filter(and_(Submissions.userId == int(gamename),Submissions.questionNum == int(questionNum))).first()
+
     def selectQuestionSequence(self,gamename):
         try:
             return QuestionSequence.query.get(int(gamename))

@@ -21,3 +21,6 @@ ANSWERS = {
                 9: "83",
                 10: "hughwilliams"
 }
+
+CORRECT_ANSWER = "Correct Answer."
+INVALID_ANSWER = "Incorrect Answer. Plz try again."
