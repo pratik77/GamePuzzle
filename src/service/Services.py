@@ -42,8 +42,8 @@ class Services():
             if(self.hasQuestionBeenSolved(obj)):
                 data = {}
                 data["nextQuestion"] = self.getNextQuestion(obj)
-                data["giveUp"] = "false"
-                data["answer"] = self.answers[int(data["nextQuestion"])]
+                # data["giveUp"] = "false"
+                # data["answer"] = self.answers[int(data["nextQuestion"])]
                 return self.generateResponseParams("200", "false", data, CORRECT_ANSWER)
 
             count = self.insertUserAnswer(obj)
@@ -51,8 +51,8 @@ class Services():
             AnswerResponse = {}
             if check:
                 AnswerResponse["nextQuestion"] = self.selectNextQuestion(obj)
-                AnswerResponse["giveUp"] = "false"
-                AnswerResponse["answer"] = self.answers[int(AnswerResponse["nextQuestion"])]
+                # AnswerResponse["giveUp"] = "false"
+                # AnswerResponse["answer"] = self.answers[int(AnswerResponse["nextQuestion"])]
                 self.updateLeaderboardMarks2(obj)
                 self.calculateAndUpdateMarks(obj, 10)
                 return self.generateResponseParams("200", "false", AnswerResponse, CORRECT_ANSWER)
@@ -69,6 +69,8 @@ class Services():
         gamename = obj["gamename"]
         questionNum = obj["questionNum"]
         currQuestion = self.dao.getSubmissionByUserIdAndQuestionNum(gamename, questionNum)
+        if currQuestion is None:
+            return True
         return currQuestion.isSolved
 
     def selectNextQuestion(self, obj):
@@ -124,27 +126,42 @@ class Services():
             if user is not None:
                 dbPin = user.pin
                 if dbPin != int(pin):
-                    return self.generateResponseParams("200", "true", {"nextQuestion" : "0", "gamename":gamename, "isAdmin":"false", "answer":"none"}, INVALID_PASSWORD_OR_USER_ALREADY_EXISTS)
+                    data = {}
+                    data["questionSequence"] = ["0"]
+                    data["gamename"] = gamename
+                    data["isAdmin"] = "false"
+                    data["answers"] = ANSWERS 
+                    return self.generateResponseParams("200", "true", data, INVALID_PASSWORD_OR_USER_ALREADY_EXISTS)
                 elif user.isAdmin == True:
-                    return self.generateResponseParams("200", "true", {"nextQuestion" : "0", "gamename":gamename, "isAdmin":"true", "answer":"none"}, "HELLO ADMIN")
+                    data = {}
+                    data["questionSequence"] = ["0"]
+                    data["gamename"] = gamename
+                    data["isAdmin"] = "true"
+                    data["answers"] = ANSWERS
+                    return self.generateResponseParams("200", "true", data, "HELLO ADMIN")
 
                 else:
                     submission = self.dao.getUnsolvedQuestionForAnUser(user.id)
+                    data = {}
+                    data["answers"] = ANSWERS
+                    data["isAdmin"] = "false"
+                    data["gamename"] = gamename  
                     if submission is not None:
-                        questionNum = str(submission.questionNum)
-                        answer = self.answers[int(questionNum)]
-                        return self.generateResponseParams("200", "false", {"nextQuestion" : questionNum, "gamename":gamename, "isAdmin":"false", "answer":answer}, SUCCESS)
-                    questionNum = str(TOTAL_QUESTIONS + 1)    
-                    return self.generateResponseParams("200", "false", {"nextQuestion" : questionNum, "gamename":gamename, "isAdmin":"false", "answer":"none"}, ALL_QUESTIONS_COMPLETED)    
+                        remainingQuestionsLeft = self.getRemainingQuestionsLeft(submission, gamename)
+                        data["questionSequence"] = remainingQuestionsLeft
+                        return self.generateResponseParams("200", "false", data, SUCCESS)
+                    remainingQuestionsLeft = ["11"]
+                    data["questionSequence"] = remainingQuestionsLeft   
+                    return self.generateResponseParams("200", "false", data, ALL_QUESTIONS_COMPLETED)    
             else:
                 shuffledSequence = []
-                for i in range (1, TOTAL_QUESTIONS + 1):
+                for i in range (1, TOTAL_QUESTIONS + 2):
                     shuffledSequence.append(i)
                 shuffledSequence = self.shuffleArray(shuffledSequence, 3, 8)
 
                 #create sequence string here
                 sequenceString = str(shuffledSequence[0])
-                for i in range(1, TOTAL_QUESTIONS):
+                for i in range(1, TOTAL_QUESTIONS + 1):
                     sequenceString += ", " + str(shuffledSequence[i])
                 
                 #commit to table
@@ -162,13 +179,26 @@ class Services():
                 
                 leaderboard = Leaderboard(userId = user.id)
                 self.dao.insert(leaderboard)
-                answer = self.answers[1]
-                return self.generateResponseParams("200", "false", {"nextQuestion" : "1", "gamename":gamename, "isAdmin":"false", "answer":answer}, SUCCESS)
+                data = {}
+                data["answers"] = ANSWERS
+                data["isAdmin"] = "false"
+                data["gamename"] = gamename
+                data["questionSequence"] = sequenceString.split(", ")
+                return self.generateResponseParams("200", "false", data, SUCCESS)
 
         except Exception as err:
             raise Exception(err)
     
-    
+    def getRemainingQuestionsLeft(self, submission, gamename):
+        unsolvedQuestionNum = submission.questionNum
+        questionSequence = self.dao.selectQuestionSequence(gamename).sequence.split(", ")
+        pos = questionSequence.index(str(unsolvedQuestionNum))
+        remainingQuestionsLeft = []
+        for i in range(pos, TOTAL_QUESTIONS):
+            remainingQuestionsLeft.append(int(questionSequence[i]))
+        remainingQuestionsLeft.append(str(TOTAL_QUESTIONS + 1))
+        return remainingQuestionsLeft
+
     def generateResponseParams(self, httpStatus, hasError, data, message):
         responseParams = {}
         responseParams['responseCode'] = httpStatus
