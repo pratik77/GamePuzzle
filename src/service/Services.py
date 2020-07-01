@@ -157,7 +157,7 @@ class Services():
                 shuffledSequence = []
                 for i in range (1, TOTAL_QUESTIONS + 2):
                     shuffledSequence.append(i)
-                shuffledSequence = self.shuffleArray(shuffledSequence, 3, 8)
+                # shuffledSequence = self.shuffleArray(shuffledSequence, 3, 8)
 
                 #create sequence string here
                 sequenceString = str(shuffledSequence[0])
