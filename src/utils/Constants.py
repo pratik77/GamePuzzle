@@ -12,11 +12,11 @@ SKIP_COUNT = 5
 ANSWERS = {
                 1: "stench",
                 2: "-3",
-                3: "kabhikhushikabhiegham",
-                4: "bibikamaqbara",
-                5: "million",
-                6: "jabtakhaijaan",
-                7: "999",
+                3: "vue",
+                4: "jabtakhaijaan",
+                5: "999",               
+                6: "million",
+                7: "kabhikhushikabhiegham",
                 8: "249",
                 9: "83",
                 10: "hughwilliams"
