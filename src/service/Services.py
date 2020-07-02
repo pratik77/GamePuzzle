@@ -311,7 +311,6 @@ class Services():
             marks2 = leaderboard.marks2
 
             existsRowsWithMarks2 = self.dao.getExistsRowWithMarks2(marks2 + 10)
-            print(existsRowsWithMarks2)
             if existsRowsWithMarks2 is None:
                 leaderboard.milestoneCount = leaderboard.milestoneCount + 1
             leaderboard.marks2 = marks2 + 10
