@@ -94,23 +94,29 @@ class DataAccess:
         except Exception as err:
             raise Exception(err)
     
-    def getTime(self,gamename,questionNum):
+    def getStartTime(self):
+        try:
+            competition = Competitions.query.filter(Competitions.isActive == True).first()
+            return competition.startTime
+        except Exception as err:
+            raise Exception(err)
+
+    def getLatestSubmission(self,gamename,questionNum):
         try:
             submission = Submissions.query.filter(and_(Submissions.userId == int(gamename),Submissions.questionNum == int(questionNum))).first()
-            t2 = submission.submissionTime
-            if questionNum != 1:
-                t1 = submission.appearingTime
-                return (t2 - t1).total_seconds()
-            competition = Competitions.query.filter(Competitions.isActive == True).first()
-            t1 = competition.startTime
-            return (t2 - t1).total_seconds()            
+            return submission
+            # Calculating time for appearingTime to submission time
+            #if questionNum != 1:
+            #    t1 = submission.appearingTime
+            #    return (t2 - t1).total_seconds()
+            #return (t2 - t1).total_seconds()            
         except Exception as err:
             raise Exception(err)
     
     def updateMarksToDB(self,gamename,marks):
         try:
             leader = Leaderboard.query.get(int(gamename))
-            leader.marks = marks
+            leader.marks = leader.marks + marks
             self.insert(leader)
         except Exception as err:
             raise Exception(err)
@@ -120,12 +126,6 @@ class DataAccess:
             return db.session.query(Submissions.userId, func.count(Submissions.questionNum)).group_by(Submissions.userId).all()
         except Exception as err:
             raise Exception(err)
-
-        
-
-    
-    
-    
 
     def getAllUsersByMarks(self):
         try:
@@ -156,4 +156,25 @@ class DataAccess:
             return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks2.desc(), Leaderboard.milestoneCount.desc(), Leaderboard.marks.desc())
         except Exception as err:
             raise Exception(err)
+    
+    def getAllUsers(self):
+        try:
+            return db.session.query(Users.id).distinct().all()
+        except Exception as err:
+            raise Exception(err)
+    def findandCloseActiveCompetition(self):
+        try:
+            competition = Competitions.query.filter(Competitions.isActive == True).first()
+            competition.isActive = False
+            self.insert(competition)
+        except Exception as err:
+            raise Exception(err)
+    
+    def getAllUnsolvedSubmissions(self):
+        try:
+            return db.session.query(Submissions).filter(Submissions.isSolved == False).all()
+        except Exception as err:
+            raise Exception(err)
+
+        
 
