@@ -322,8 +322,8 @@ class Services():
                 notSolved.isSolved = True
                 notSolved.submissionTime = endTime
                 self.dao.insert(notSolved)
-                totalTime = (endTime - self.startTime).total_seconds()
-                self.dao.updateMarksToDB(notSolved.questionNum,totalTime)
+                totalTime = (endTime - self.dao.getStartTime()).total_seconds()
+                self.dao.updateMarksToDB(notSolved.userId,totalTime)
             self.dao.findandCloseActiveCompetition()
         except Exception as err:
             raise Exception(err)
