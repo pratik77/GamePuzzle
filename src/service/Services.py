@@ -25,7 +25,8 @@ import datetime
 
 class Services():
     dao = DataAccess()
-
+    #startTime = datetime.datetime.now()
+    #endTime = startTime
     answers = ANSWERS
     
     def validateAnswer(self, question, answer):
@@ -46,7 +47,7 @@ class Services():
             #     # data["answer"] = self.answers[int(data["nextQuestion"])]
             #     return self.generateResponseParams("200", "false", data, CORRECT_ANSWER)
 
-            count = self.insertUserAnswer(obj)
+            self.insertUserAnswer(obj)
             check = self.validateAnswer(obj["questionNum"], obj["answer"])
             AnswerResponse = {}
             if check:
@@ -54,13 +55,9 @@ class Services():
                 # AnswerResponse["giveUp"] = "false"
                 # AnswerResponse["answer"] = self.answers[int(AnswerResponse["nextQuestion"])]
                 self.updateLeaderboardMarks2(obj)
-                self.calculateAndUpdateMarks(obj, 10)
+                self.calculateAndUpdateMarks(obj)
                 return self.generateResponseParams("200", "false", AnswerResponse, CORRECT_ANSWER)
             AnswerResponse["nextQuestion"] = obj["questionNum"]
-            AnswerResponse["giveUp"] = "false"
-            AnswerResponse["answer"] = self.answers[int(AnswerResponse["nextQuestion"])]
-            if count >= SKIP_COUNT:
-                AnswerResponse["giveUp"] = "true"
             return self.generateResponseParams("200", "true", AnswerResponse, INVALID_ANSWER)
         except Exception as err:
             raise Exception(err)
@@ -324,28 +321,41 @@ class Services():
         except Exception as err:
             raise Exception(err)
     
-    
 
-        
-    
     def giveUp(self, obj):
         try:
             AnswerResponse = {}
             AnswerResponse["nextQuestion"] = self.selectNextQuestion(obj)
             AnswerResponse["giveUp"] = "false"
-            self.calculateAndUpdateMarks(obj, 0)
+            self.calculateAndUpdateMarks(obj)
             return self.generateResponseParams("200", "false", AnswerResponse, SUCCESS)
         except Exception as err:
             raise Exception(err)
     
-    def calculateAndUpdateMarks(self, obj, score):
+    def calculateAndUpdateMarks(self, obj):
         try:
             gamename = int(obj["gamename"])
-            questionNum = int(obj["questionNum"])
-            marks = self.dao.getScore(gamename) + score - (self.dao.getTime(gamename,questionNum) * 0.0166667)
-            self.dao.updateMarksToDB(gamename,marks)
+            totalTime = (datetime.datetime.now() - self.dao.getStartTime()).total_seconds()
+            self.dao.updateMarksToDB(gamename,totalTime)
         except Exception as err:
             raise Exception(err)
+    
+    #def calculateAndUpdateMarksLocalTesting(self):
+    #    try:
+    #        users = self.dao.getAllUsers()
+    #        marks = 0
+    #        for user in users:
+    #            for i in range(1, TOTAL_QUESTIONS + 1):
+    #                gamename = int(user.id)
+    #                questionNum = i
+    #                submission = self.dao.getTime(gamename,questionNum)
+    #                if  submission is not None:
+    #                    submitTime = submission.submissionTime
+    #                    totalTime = (submitTime - self.startTime).total_seconds()
+    #            self.dao.updateMarksToDB(gamename,totalTime)                    
+    #        return self.generateResponseParams("200", "false", {"started"}, SUCCESS)
+    #    except Exception as err:
+    #        raise Exception(err)
 
     def startCompetition(self):
         try:
@@ -356,6 +366,7 @@ class Services():
             self.dao.delete(QuestionSequence)
             self.dao.delete(Users)
             competition = Competitions(startTime=datetime.datetime.now(), isActive=True)
+            #self.startTime = competition.startTime
             self.dao.insert(competition)
             return self.generateResponseParams("200", "false", {"Status" : "GameStarted"}, SUCCESS)
         except Exception as err:
@@ -404,3 +415,18 @@ class Services():
             return self.generateResponseParams("200", "false", {"submissionDetails" : submittedAnswers, "leaderboard":leaderboard, "leaderboard2":leaderboard2}, SUCCESS)
         except Exception as err:
             raise Exception(err)
+    def endCompetition(self):
+        try:
+            endTime = datetime.datetime.now()
+            notSolvedSubmissions = self.dao.getAllUnsolvedSubmissions()
+            #if len(notSolvedSubmissions) != 0:
+            for notSolved in notSolvedSubmissions:
+                notSolved.isSolved = True
+                notSolved.submissionTime = endTime
+                self.dao.insert(notSolved)
+                totalTime = (endTime - self.dao.startTime()).total_seconds()
+                self.dao.updateMarksToDB(notSolved.questionNum,totalTime)
+            self.dao.findandCloseActiveCompetition()
+        except Exception as err:
+            raise Exception(err)
+

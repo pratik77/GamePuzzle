@@ -16,6 +16,8 @@ import time
 from src.models import model
 from src.api.GetLeaderboard import GetLeaderboard
 from src.api.GetSubmissionDetailsAndLeaderboard import GetSubmissionDetailsAndLeaderboard
+from src.api.UpdateMarks import UpdateMarks
+from src.api.EndCompetition import EndCompetition
 
 # app = Flask(__name__)
 # api = Api(app)
@@ -31,6 +33,8 @@ api.add_resource(GetSubmissionDetailsAndLeaderboard, '/getSubmissionDetailsAndLe
 api.add_resource(GiveUpQuestion, '/giveUpQuestion')
 api.add_resource(SubmitAnswer, '/submitAnswer')
 api.add_resource(StartCompetition,'/startCompetition')
+api.add_resource(UpdateMarks,'/updateMarks')
+api.add_resource(EndCompetition,'/endCompetition')
 if __name__ == '__main__':
 
     confFile = None
