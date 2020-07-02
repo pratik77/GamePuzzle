@@ -74,13 +74,16 @@ class DataAccess:
 
     def updateSolvedQuestionToDB(self,gamename,questionNum):
         try:
-            submission = Submissions.query.filter(and_(Submissions.userId == int(gamename),Submissions.questionNum == int(questionNum))).first()
+            submission = self.getSubmissionByUserIdAndQuestionNum(gamename, questionNum)
             submission.isSolved = True
             submission.submissionTime = datetime.datetime.now()
             self.insert(submission)
         except Exception as err:
             raise Exception(err)
     
+    def getSubmissionByUserIdAndQuestionNum(self, gamename, questionNum):
+        return Submissions.query.filter(and_(Submissions.userId == int(gamename),Submissions.questionNum == int(questionNum))).first()
+
     def selectQuestionSequence(self,gamename):
         try:
             return QuestionSequence.query.get(int(gamename))
@@ -129,7 +132,7 @@ class DataAccess:
 
     def getAllUsersByMarks(self):
         try:
-            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks.desc(), Leaderboard.marks2.desc(), Leaderboard.milestoneCount.desc())
+            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks2.desc(), Leaderboard.milestoneAchieveTime.asc())
         except Exception as err:
             raise Exception(err)
 
@@ -153,7 +156,7 @@ class DataAccess:
 
     def getAllUsersByMarks2(self):
         try:
-            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks2.desc(), Leaderboard.milestoneCount.desc(), Leaderboard.marks.desc())
+            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks2.desc(), Leaderboard.marks.asc(), Leaderboard.milestoneAchieveTime.asc())
         except Exception as err:
             raise Exception(err)
     

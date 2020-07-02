@@ -14,10 +14,14 @@ ANSWERS = {
                 2: "-3",
                 3: "vue",
                 4: "jabtakhaijaan",
-                5: "999",               
+                5: "999",
                 6: "million",
                 7: "kabhikhushikabhiegham",
                 8: "249",
                 9: "83",
-                10: "hughwilliams"
-        }
+                10: "hughwilliams",
+                11: "none"
+}
+
+CORRECT_ANSWER = "Correct Answer."
+INVALID_ANSWER = "Incorrect Answer. Plz try again."
