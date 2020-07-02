@@ -42,6 +42,7 @@ class Leaderboard(db.Model):
     marks = db.Column(db.Float, nullable=False, default = 5.0)
     marks2 = db.Column(db.Integer, nullable=False, default=0.0)
     milestoneCount = db.Column(db.Integer, nullable=False, default=0)
+    milestoneAchieveTime = db.Column(db.DateTime, nullable=False, default=datetime.datetime.now())
 
 # Decription: The table will store all the correct and incorrect answers given by an user
 class SubmissionDetails(db.Model):

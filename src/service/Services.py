@@ -318,6 +318,7 @@ class Services():
             if existsRowsWithMarks2 is None:
                 leaderboard.milestoneCount = leaderboard.milestoneCount + 1
             leaderboard.marks2 = marks2 + 10
+            leaderboard.milestoneAchieveTime = datetime.datetime.now()
             self.dao.insert(leaderboard)
             
         except Exception as err:
@@ -357,5 +358,49 @@ class Services():
             competition = Competitions(startTime=datetime.datetime.now(), isActive=True)
             self.dao.insert(competition)
             return self.generateResponseParams("200", "false", {"Status" : "GameStarted"}, SUCCESS)
+        except Exception as err:
+            raise Exception(err)
+
+    def getSubmissionDetailsAndLeaderboardv2(self, data):
+
+        try:
+            details = self.dao.getLatestSubmissionsDetails()
+            submittedAnswers = []
+
+            users = self.dao.getAllUsersByMarks()
+            leaderboard = []
+
+            users2 = self.dao.getAllUsersByMarks2()
+            leaderboard2 = []
+
+            for detail in details:
+                userData = {}
+                userData["fname"] = detail.Users.firstName
+                userData["questionNum"] = detail.SubmissionDetails.questionNum
+                userData["submittedAnswer"] = detail.SubmissionDetails.submittedAnswer
+                userData["actualAnswer"] = self.answers[detail.SubmissionDetails.questionNum]
+                submittedAnswers.append(userData)
+
+            i = 1
+            for user in users:
+                userData = {}
+                userData["gamename"] = user.Users.id
+                userData["fname"] = user.Users.firstName
+                userData["marks"] = user.Leaderboard.marks
+                userData["rank"] = i
+                i = i + 1
+                leaderboard.append(userData)
+
+            i = 1
+            for user in users2:
+                userData = {}
+                userData["gamename"] = user.Users.id
+                userData["fname"] = user.Users.firstName
+                userData["marks"] = user.Leaderboard.marks2
+                userData["rank"] = i
+                i = i + 1
+                leaderboard2.append(userData)
+            
+            return self.generateResponseParams("200", "false", {"submissionDetails" : submittedAnswers, "leaderboard":leaderboard, "leaderboard2":leaderboard2}, SUCCESS)
         except Exception as err:
             raise Exception(err)

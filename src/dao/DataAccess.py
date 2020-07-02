@@ -132,7 +132,7 @@ class DataAccess:
 
     def getAllUsersByMarks(self):
         try:
-            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks.desc(), Leaderboard.marks2.desc(), Leaderboard.milestoneCount.desc())
+            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks2.desc(), Leaderboard.milestoneAchieveTime.asc())
         except Exception as err:
             raise Exception(err)
 
@@ -156,7 +156,7 @@ class DataAccess:
 
     def getAllUsersByMarks2(self):
         try:
-            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks2.desc(), Leaderboard.milestoneCount.desc(), Leaderboard.marks.desc())
+            return db.session.query(Users, Leaderboard).filter(Leaderboard.userId == Users.id).order_by(Leaderboard.marks2.desc(), Leaderboard.marks.asc(), Leaderboard.milestoneAchieveTime.asc())
         except Exception as err:
             raise Exception(err)
 
