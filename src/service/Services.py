@@ -51,9 +51,12 @@ class Services():
             check = self.validateAnswer(obj["questionNum"], obj["answer"])
             AnswerResponse = {}
             if check:
-                AnswerResponse["nextQuestion"] = self.selectNextQuestion(obj)
+                # AnswerResponse["nextQuestion"] = self.selectNextQuestion(obj)
                 # AnswerResponse["giveUp"] = "false"
                 # AnswerResponse["answer"] = self.answers[int(AnswerResponse["nextQuestion"])]
+                if(self.hasQuestionBeenSolved(obj)):
+                    return self.generateResponseParams("200", "false", AnswerResponse, CORRECT_ANSWER)
+                self.markQuestionAsSolved(obj)
                 self.updateLeaderboardMarks2(obj)
                 self.calculateAndUpdateMarks(obj)
                 return self.generateResponseParams("200", "false", AnswerResponse, CORRECT_ANSWER)
@@ -69,6 +72,13 @@ class Services():
         if currQuestion is None:
             return True
         return currQuestion.isSolved
+
+    def markQuestionAsSolved(self, obj):
+        gamename = obj["gamename"]
+        questionNum = obj["questionNum"]
+        self.dao.updateSolvedQuestionToDB(gamename,questionNum)
+        nextQuestion = Submissions(userId = int(gamename),questionNum = int(questionNum) + 1, appearingTime = datetime.datetime.now())
+        self.dao.insert(nextQuestion)
 
     def selectNextQuestion(self, obj):
         try:
@@ -142,12 +152,12 @@ class Services():
                     data = {}
                     data["answers"] = ANSWERS
                     data["isAdmin"] = "false"
-                    data["gamename"] = gamename  
+                    data["gamename"] = gamename
                     if submission is not None:
                         remainingQuestionsLeft = self.getRemainingQuestionsLeft(submission, gamename)
                         data["questionSequence"] = remainingQuestionsLeft
                         return self.generateResponseParams("200", "false", data, SUCCESS)
-                    remainingQuestionsLeft = ["11"]
+                    remainingQuestionsLeft = ["13"]
                     data["questionSequence"] = remainingQuestionsLeft   
                     return self.generateResponseParams("200", "false", data, ALL_QUESTIONS_COMPLETED)    
             else:
@@ -162,7 +172,7 @@ class Services():
                     sequenceString += ", " + str(shuffledSequence[i])
                 
                 #commit to table
-                user = Users(id = int(gamename), firstName = data["fname"], familyName = data["lname"], pin = pin)
+                user = Users(id = int(gamename), firstName = data["fname"], familyName = data["lname"], pin = pin, avatar = data["avatar"])
                 self.dao.insert(user)
                 # self.dao.commit()
 
@@ -229,16 +239,21 @@ class Services():
     def getLeaderboard(self, data):
 
         try:
-            users = self.dao.getAllUsersByMarks()
+            users = self.dao.getAllUsersByMarks2()
             leaderboard = []
 
+            i = 1
             for user in users:
                 userData = {}
+                userData["gamename"] = user.Users.id
                 userData["fname"] = user.Users.firstName
-                userData["marks"] = user.Leaderboard.marks[0]
+                userData["marks"] = user.Leaderboard.marks2
+                userData["rank"] = i
+                userData["avatar"] = user.Users.avatar
+                i = i + 1
                 leaderboard.append(userData)
             
-            return self.generateResponseParams("200", "false", {"leaderboard" : leaderboard}, SUCCESS)
+            return self.generateResponseParams("200", "false", {"leaderboard2":leaderboard}, SUCCESS)
         except Exception as err:
             raise Exception(err)
 

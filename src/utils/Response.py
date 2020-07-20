@@ -10,4 +10,5 @@ class Response:
     def errorResponse(self, err):
         print(err)
         message = str(err)
+        print(message)
         return self.response("503", "true",{}, message)
