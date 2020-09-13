@@ -8,7 +8,9 @@ class GetUserGamePlayData(Resource, Response):
     service = Services()
     def post(self):
         try: 
+            print(request.data)
             responseData = self.service.userGameplayData(request.data)
+            print(responseData)
             self.service.removeDbInstance()
             return responseData
         except Exception as err:
