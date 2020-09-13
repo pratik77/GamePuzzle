@@ -246,7 +246,7 @@ class Services():
             for user in users:
                 userData = {}
                 userData["gamename"] = user.Users.id
-                userData["fname"] = user.Users.firstName
+                userData["fname"] = user.Users.firstName + " " + user.Users.familyName
                 userData["marks"] = user.Leaderboard.marks2
                 userData["rank"] = i
                 userData["avatar"] = user.Users.avatar

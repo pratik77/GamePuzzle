@@ -10,19 +10,17 @@ INVALID_PASSWORD_OR_USER_ALREADY_EXISTS = "Game Name exists or Invalid password.
 ALL_QUESTIONS_COMPLETED = "You have completed all the questions. Now sit back and relax for your results."
 SKIP_COUNT = 5
 ANSWERS = {
-                1: "lexmurphy",
-                2: "smith",
-                3: "kirkalyn",
-                4: "6",
-                5: "23",
-                6: "akshaykumar",
-                7: "red",
-                8: "baazigar",
-                9: "humaapkehainkoun..!",
-                10: "dhoom",
-                11: "3idiots",
-		        12: "rangdebasanti",
-		        13: "none"
+                1: "breath",
+                2: "73",
+                3: "ton",
+                4: "hrithikroshan",
+                5: "alastormoody",
+                6: "theshawshankredemption",
+                7: "572",
+                8: "bloomfarmgarden",
+                9: "stevejobs",
+                10: "chadchiletogo",
+                11: "none"
 }
 
 CORRECT_ANSWER = "Correct Answer."
